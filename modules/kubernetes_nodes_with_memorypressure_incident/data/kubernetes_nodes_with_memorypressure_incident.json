@@ -1,0 +1,174 @@
+{
+  "name": "kubernetes_nodes_with_memorypressure_incident",
+  "description": "The Kubernetes Nodes with Memorypressure incident type occurs when a Kubernetes cluster node is running low on memory, which can be caused by a memory leak in an application. This incident type requires immediate attention to prevent any downtime and ensure the proper functioning of the Kubernetes cluster. Typically, this incident type is monitored by DevOps teams using various monitoring tools, including PagerDuty, to identify and address memory pressure issues quickly.",
+  "params": [
+    {
+      "name": "APPLICATION_NAME",
+      "value": ""
+    },
+    {
+      "name": "POD_MANIFEST_FILE",
+      "value": ""
+    },
+    {
+      "name": "POD_NAME",
+      "value": ""
+    },
+    {
+      "name": "NODE_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    },
+    {
+      "name": "MEMORY_SIZE",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Kubernetes Nodes with Memorypressure incident\nThe Kubernetes Nodes with Memorypressure incident type occurs when a Kubernetes cluster node is running low on memory, which can be caused by a memory leak in an application. This incident type requires immediate attention to prevent any downtime and ensure the proper functioning of the Kubernetes cluster. Typically, this incident type is monitored by DevOps teams using various monitoring tools, including PagerDuty, to identify and address memory pressure issues quickly."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## List all the nodes in the Kubernetes cluster"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get nodes`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Get detailed information about a specific node"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl describe node ${NODE_NAME}`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the memory usage metrics for the node"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl top node ${NODE_NAME}`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## List all the pods running on the node"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get pods --all-namespaces -o wide --field-selector spec.nodeName=${NODE_NAME}`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Get detailed information about a specific pod"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl describe pod ${POD_NAME}`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the memory usage metrics for the pod"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl top pod ${POD_NAME}`"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the logs for the pod to see if there are any memory leak errors"
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl logs ${POD_NAME}`"
+    },
+    {
+      "name": "cell_16",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the Kubernetes events for the pod to see if there are any memory-related issues"
+    },
+    {
+      "name": "cell_17",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get events --field-selector involvedObject.name=${POD_NAME}`"
+    },
+    {
+      "name": "cell_18",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Delete and recreate the pod to see if that resolves the memory pressure issue"
+    },
+    {
+      "name": "cell_19",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_delete_apply_pods($POD_MANIFEST_FILE, $POD_NAME)"
+    },
+    {
+      "name": "cell_20",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## The Kubernetes cluster may be under-provisioned, meaning that the resources allocated to the cluster are insufficient to handle the workload, leading to memory pressure."
+    },
+    {
+      "name": "cell_21",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_kubernetes_memory_usage()"
+    },
+    {
+      "name": "cell_22",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Identify and troubleshoot memory leaks in applications running on the node."
+    },
+    {
+      "name": "cell_23",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_memory_leak_detection($POD_NAME, $NAMESPACE)"
+    }
+  ]
+}
